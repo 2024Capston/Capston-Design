@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -13,9 +14,9 @@ using UnityEngine.EventSystems;
 public class PlayerController : NetworkBehaviour
 {
     // 이동 속력, 회전 속력, 점프력
-    [SerializeField] private float _walkSpeed = 10;
-    [SerializeField] private float _rotateSpeed = 2;
-    [SerializeField] private float _jumpForce = 20;
+    [SerializeField] private float _walkSpeed = 10f;
+    [SerializeField] private float _rotateSpeed = 2f;
+    [SerializeField] private float _jumpForce = 20f;
 
     private Rigidbody _rigidbody;
     private CapsuleCollider _capsuleCollider;
@@ -23,6 +24,30 @@ public class PlayerController : NetworkBehaviour
 
     // 플레이어 조작에 쓰이는 보조 변수
     private Vector3 _pastPosition;
+
+    // [SerializeField] private bool _isStop;
+    [SerializeField] public NetworkVariable<Boolean> _isStop = new NetworkVariable<Boolean>(true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public bool IsStop 
+    {
+        get 
+        {
+            // if (Mathf.Abs(_pastPosition.x-transform.position.x)<.01 && Mathf.Abs(_pastPosition.y-transform.position.y)<.01) 
+            // {
+            //     return true;
+            // }
+            // else return false;
+            
+            float h = Input.GetAxis("Horizontal");
+            float v = Input.GetAxis("Vertical");
+
+            if (h != 0 || v != 0)
+            {
+                return false;
+            }
+            else return true;
+        }
+    }
+
     private float _pitchAngle;
     private bool _isGrounded = true;
 
@@ -61,6 +86,7 @@ public class PlayerController : NetworkBehaviour
         _capsuleCollider = GetComponent<CapsuleCollider>();
         _meshRenderer = GetComponent<MeshRenderer>();
 
+        _isStop.Value=IsStop;
         _pastPosition = transform.position;
 
         // 서버에서는 플레이어 생성과 함께 색깔을 부여 (테스트용)
@@ -124,6 +150,9 @@ public class PlayerController : NetworkBehaviour
 
         _pitchAngle = Mathf.Clamp(_pitchAngle + mouseY * _rotateSpeed, -90, 90);
 
+        _isStop.Value=IsStop;
+        _pastPosition = transform.position;
+
         // 이동
         Vector3 moveDir = (v * transform.forward + h * transform.right).normalized * _walkSpeed;
         _rigidbody.velocity = new Vector3(moveDir.x, _rigidbody.velocity.y, moveDir.z);
@@ -139,6 +168,19 @@ public class PlayerController : NetworkBehaviour
         transform.Rotate(new Vector3(0, mouseX * _rotateSpeed, 0));
         Vector3 cameraRot = _mainCamera.transform.rotation.eulerAngles;
         _mainCamera.transform.rotation = Quaternion.Euler(_pitchAngle, cameraRot.y, cameraRot.z);
+
+        // 정지 상태시 추격하는 몹 안보이게
+        GameObject chasingEnemy = GameObject.FindGameObjectWithTag("chasingEnemy");
+        if (IsStop)
+        {
+            ChasingEnemy enemyScript = chasingEnemy.GetComponent<ChasingEnemy>();
+            enemyScript.OnStealth();
+        }
+        else{
+            ChasingEnemy enemyScript = chasingEnemy.GetComponent<ChasingEnemy>();
+            enemyScript.OffStealth();
+        }
+
 
         // 상호작용 키
         if (Input.GetKeyDown(KeyCode.E))
