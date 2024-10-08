@@ -171,14 +171,17 @@ public class PlayerController : NetworkBehaviour
 
         // 정지 상태시 추격하는 몹 안보이게
         GameObject chasingEnemy = GameObject.FindGameObjectWithTag("chasingEnemy");
-        if (IsStop)
+        if (chasingEnemy)
         {
-            ChasingEnemy enemyScript = chasingEnemy.GetComponent<ChasingEnemy>();
-            enemyScript.OnStealth();
-        }
-        else{
-            ChasingEnemy enemyScript = chasingEnemy.GetComponent<ChasingEnemy>();
-            enemyScript.OffStealth();
+            if (IsStop)
+            {
+                ChasingEnemy enemyScript = chasingEnemy.GetComponent<ChasingEnemy>();
+                enemyScript.OnStealth();
+            }
+            else{
+                ChasingEnemy enemyScript = chasingEnemy.GetComponent<ChasingEnemy>();
+                enemyScript.OffStealth();
+            }
         }
 
 

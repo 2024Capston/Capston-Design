@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Unity.Burst.CompilerServices;
@@ -8,7 +9,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ChasingEnemy : MonoBehaviour
+public class ChasingEnemy : NetworkBehaviour
 {
     // 이동 속력, 회전 속력, 점프력
     [SerializeField] private float _walkSpeed = 10f;
@@ -41,6 +42,11 @@ public class ChasingEnemy : MonoBehaviour
     }
     private void Update()
     {
+        // 추격하는 몹의 위치는 Owner(서버)에 의해서만 갱신되도록 한다
+        if (!IsServer)
+        {
+            return;
+        }
         if (_targetTransform == null) 
         {
             _rigidbody.velocity = new Vector3(0,0,0);
