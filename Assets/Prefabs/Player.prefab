@@ -204,6 +204,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _walkSpeed: 10
   _rotateSpeed: 2
-  _jumpForce: 4
+  _jumpForce: 12
   _isStop:
     m_InternalValue: 1

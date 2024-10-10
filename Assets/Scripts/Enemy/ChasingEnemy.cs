@@ -20,6 +20,7 @@ public class ChasingEnemy : NetworkBehaviour
     private MeshRenderer _meshRenderer;
     private Renderer _objectRenderer;
     private bool _isStealth = false;
+    private bool _isChasing = false;
 
     [SerializeField]
     private Transform _targetTransform;
@@ -27,7 +28,13 @@ public class ChasingEnemy : NetworkBehaviour
     // 플레이어 조작에 쓰이는 보조 변수
     private Vector3 _pastPosition;
     private float _pitchAngle;
-    
+     public bool IsChasing
+    {
+        get 
+        {
+            return _isChasing;
+        }
+    }
     private void Awake()
     {
         
@@ -40,13 +47,14 @@ public class ChasingEnemy : NetworkBehaviour
         _objectRenderer = GetComponent<Renderer>();
         StartCoroutine(ChooseTarget());
     }
+    
     private void Update()
     {
         // 추격하는 몹의 위치는 Owner(서버)에 의해서만 갱신되도록 한다
-        if (!IsServer)
-        {
-            return;
-        }
+        // if (!IsOwner)
+        // {
+        //     return;
+        // }
         if (_targetTransform == null) 
         {
             _rigidbody.velocity = new Vector3(0,0,0);
@@ -54,7 +62,11 @@ public class ChasingEnemy : NetworkBehaviour
         }
         // 이동
         Vector3 moveDir = (_targetTransform.position - transform.position).normalized * _walkSpeed;
-        _rigidbody.velocity = new Vector3(moveDir.x, _rigidbody.velocity.y, moveDir.z);
+        if (_isChasing)
+        {
+            _rigidbody.velocity = new Vector3(moveDir.x, _rigidbody.velocity.y, moveDir.z);
+
+        }
 
     }
     IEnumerator ChooseTarget()
@@ -114,5 +126,9 @@ public class ChasingEnemy : NetworkBehaviour
     {
         _isStealth = false;
         _objectRenderer.enabled = _isStealth;
+    }
+    public void OnChasing()
+    {
+        _isChasing = true;
     }
 }

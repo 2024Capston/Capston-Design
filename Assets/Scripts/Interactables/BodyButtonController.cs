@@ -129,7 +129,6 @@ public class BodyButtonController : NetworkBehaviour, IInteractable
         }
         if (collision.collider.gameObject.CompareTag("Player"))
         {
-            Debug.Log($"UUUUUUU");
             PlayerController player = collision.collider.gameObject.GetComponent<PlayerController>();
             if (player.PlayerColor.Value == _buttonColor.Value)
             {

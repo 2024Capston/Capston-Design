@@ -2,7 +2,9 @@ using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 
 /// <summary>
 /// 상자를 나타내는 클래스
@@ -36,6 +38,14 @@ public class CubeController : NetworkBehaviour, IInteractable
     private Rigidbody _rigidbody;
     private BoxCollider _boxCollider;
     private MeshRenderer _meshRenderer;
+
+    private void Awake()
+    {
+        if (_initColor == ColorType.None)
+        {
+            _initColor = (ColorType)Random.Range(1,3);
+        }
+    }
 
     public override void OnNetworkSpawn()
     {
